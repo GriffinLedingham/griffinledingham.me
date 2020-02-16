@@ -19,10 +19,12 @@ app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
 app.use(express.static("client"));
 
+const postsDir = "./posts";
+
 // Home Route
 app.get("/", (req, res) => {
   const homeData = { posts: [] };
-  fs.readdir("./markdown", (err, files) => {
+  fs.readdir(postsDir, (err, files) => {
     files.forEach(postFile => {
       homeData.posts.push({ id: postFile.split(".")[0] });
     });
@@ -33,7 +35,7 @@ app.get("/", (req, res) => {
 // Post Routes
 app.get("/post/:id", (req, res) => {
   const postId = req.params.id;
-  fs.readFile(`./markdown/${postId}.md`, { encoding: "utf8" }, (err, data) => {
+  fs.readFile(`${postsDir}/${postId}.md`, { encoding: "utf8" }, (err, data) => {
     if (err == null) {
       const md = new MarkdownIt();
       const result = md.render(data);
