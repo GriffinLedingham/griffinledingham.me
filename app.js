@@ -39,7 +39,7 @@ app.get("/post/:id", (req, res) => {
     if (err == null) {
       const md = new MarkdownIt();
       const result = md.render(data);
-      res.render("post", { layout: "post", md: result });
+      res.render("post", { md: result });
     } else {
       res.render("404");
     }
