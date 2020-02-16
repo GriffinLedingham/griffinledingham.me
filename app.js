@@ -23,27 +23,23 @@ const postsDir = "./posts";
 
 // Home Route
 app.get("/", (req, res) => {
-  const homeData = { posts: [] };
+  const promises = [];
   fs.readdir(postsDir, (err, files) => {
     files.forEach(postFile => {
-      homeData.posts.push({ id: postFile.split(".")[0] });
+      promises.push(parseMarkdown(postFile.split(".")[0]));
     });
-    res.render("home", homeData);
+    Promise.all(promises).then(posts => {
+      res.render("home", { posts });
+    });
   });
 });
 
 // Post Routes
 app.get("/post/:id", (req, res) => {
   const postId = req.params.id;
-  fs.readFile(`${postsDir}/${postId}.md`, { encoding: "utf8" }, (err, data) => {
-    if (err == null) {
-      const md = new MarkdownIt();
-      const result = md.render(data);
-      res.render("post", { md: result });
-    } else {
-      res.render("404");
-    }
-  });
+  parseMarkdown(postId)
+    .then(postData => res.render("post", postData))
+    .catch(e => res.render("404"));
 });
 
 app.get("*", (req, res) => {
@@ -51,3 +47,28 @@ app.get("*", (req, res) => {
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+function parseMarkdown(postId) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(
+      `${postsDir}/${postId}.md`,
+      { encoding: "utf8" },
+      (err, data) => {
+        if (err == null) {
+          const dataArr = data.split("</summary>");
+          const md = new MarkdownIt();
+          const postData = { id: postId };
+          if (dataArr.length > 1) {
+            postData.summary = md.render(dataArr[0]);
+            postData.post = md.render(dataArr[1]);
+          } else {
+            postData.post = md.render(dataArr[0]);
+          }
+          return resolve(postData);
+        } else {
+          reject();
+        }
+      }
+    );
+  });
+}
