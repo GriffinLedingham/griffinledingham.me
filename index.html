@@ -3,25 +3,45 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-    <title>Example App</title>
+    <title>brain dumps & code</title>
     <link rel="stylesheet" type="text/css" href="/styles/global.css">
 </head>
 <body>
+    <header>
+        <a href="/" id="title">
+            <div>brain dumps</div>
+            <span>& code</span>
+        </a>
+        <span id="socials">
+            <div><a href="https://github.com/GriffinLedingham" target="_blank"><img src="/images/github.svg"> <span>griffinledingham</span></a></div>
+            <div><a href="https://twitter.com/gcledingham" target="_blank"><img src="/images/twitter.svg"> <span>@gcledingham</span></a></div>
+            <div><a href="https://www.pikalytics.com" target="_blank"><img src="/images/term.svg"> <span>pikalytics</span></a></div>
+            <div><a href="https://www.kanoapps.com" target="_blank"><img src="/images/work.svg"> <span>kano</span></a></div>
+        </span>
+    </header>    <div id="posts">
+        <div>
+            <h5>February 16, 2020</h5>
+<h1>Training Pokemon with genetic algorithms</h1>
+<p>Competitive Pokemon is a game of numbers, and optimizing EV spreads is one of the most challenging aspects of high-level play. In this article, I discuss how optimization algorithms may be used to find new solutions to a problem posed by a 20 year old series for the Nintendo Game Boy.</p>
 
-    <div>
-    <div>my thoughts</div>
-
-        <h5>February 16, 2020</h5>
-<h1>My Title</h1>
-<p>Read about some paragraphs.</p>
-
-        <a href="post/my-post">View article -></a>
+            <a href="post/001-genetics">Read article →</a>
+        </div>
 </div>
-
-</body>
+    <footer>
+        <span><img src="/images/node-dot-js.svg"> Built with <a href="https://github.com/GriffinLedingham/node-blog-starter/" target="_blank">my Node.js blog template</a>.</span>
+    </footer></body>
 <script>
   if(location.origin.indexOf('localhost') !== -1) {
       document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
   }
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158710940-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-158710940-1');
 </script>
 </html>
