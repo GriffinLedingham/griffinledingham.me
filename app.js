@@ -25,7 +25,7 @@ const postsDir = "./posts";
 app.get("/", (req, res) => {
   const promises = [];
   fs.readdir(postsDir, (err, files) => {
-    files.forEach(postFile => {
+    files.reverse().forEach(postFile => {
       promises.push(parseMarkdown(postFile.split(".")[0]));
     });
     Promise.all(promises).then(posts => {
@@ -56,13 +56,21 @@ function parseMarkdown(postId) {
       (err, data) => {
         if (err == null) {
           const dataArr = data.split("</summary>");
-          const md = new MarkdownIt();
+          const md = new MarkdownIt().use(require("markdown-it-footnote"));
           const postData = { id: postId };
-          if (dataArr.length > 1) {
-            postData.summary = md.render(dataArr[0]);
-            postData.post = md.render(dataArr[1]);
+          if (dataArr.length === 2) {
+            const titleArr = dataArr[0].split("</title>");
+            if (titleArr.length === 2) {
+              postData.title = md
+                .render(titleArr[0])
+                .replace(/(<([^>]+)>)/gi, "");
+              postData.summary = md.render(titleArr[1]);
+              postData.post = md.render(dataArr[1]);
+            } else {
+              return reject();
+            }
           } else {
-            postData.post = md.render(dataArr[0]);
+            return reject();
           }
           return resolve(postData);
         } else {
