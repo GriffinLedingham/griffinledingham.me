@@ -84,7 +84,7 @@ code {
   -webkit-font-smoothing: antialiased;
   display: inline-block;
   overflow: auto;
-  max-width: 680px;
+  max-width: 90%;
   vertical-align: bottom;
 }
 
