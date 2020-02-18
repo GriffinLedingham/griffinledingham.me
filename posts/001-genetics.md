@@ -20,7 +20,7 @@ In the field of mathematics and computer science, optimization problems are a co
 
 [Metaheuristics](https://en.wikipedia.org/wiki/Metaheuristic) are high-level procedures which help us to find sufficiently good solutions to optimization problems, using the provided input knowledge to abstract the problem into a simpler heuristic. Among the many different styles of metaheuristic, the [genetic algorithm](https://en.wikipedia.org/wiki/Genetic_algorithm) is an abstraction which models the problem after biological evolution and natural selection. In this article I will be discussing how genetic algorithms may be applied to the task of creating effort value (EV) combinations for Pokemon, and what pitfalls may arise.
 
-The discussion here is based on my implementation of the problem using genetic algorithms which can be [found here](https://github.com/GriffinLedingham/pikacalc) on my [GitHub](https://github.com/GriffinLedingham). The is very much in experimental stages, and should be treated as a proof of concept that what is discussed in this article is possible, though far from complete.
+The discussion here is based on my implementation of the problem using genetic algorithms which can be [found here](https://github.com/GriffinLedingham/pikacalc) on my [GitHub](https://github.com/GriffinLedingham). This is very much in experimental stages, and should be treated as a proof of concept that what is discussed in this article is possible, though far from complete.
 
 ## Effort Value Spreads
 
