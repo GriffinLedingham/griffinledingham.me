@@ -75,9 +75,9 @@ This means that the best fit configuration for Gyarados is 78 EV points into HP,
 
 So is that it? Has this algorithm just solved the problem, and found the perfect, best fit Pokemon possible? Well, no, unfortunately that is likely not the case. Effort value allocation is a very challenging problem to solve, requiring comprehension of the meta game and predicting decisions that opponents may make, among many other factors. While the genetic algorithm is able to produce a purely statistically proposed best fit solution, a knowledgeable player is still highly likely to outperform automation at this task until further improvements are made. That said, there is a lot of information to be unpacked from this simple set of numbers.
 
-### HP
+### HP & Defense
 
-Looking through the top Pokemon in competitive play right now, Gyarados may have a difficult time handling opponents carrying Rock Slide, a super effective move which nearly one-hit KO's Gyarados under various circumstances. The popularity of this move in the current landscape likely speaks to the HP and Defense point investment in the best fit spread, allowing Gyarados to healthily survive a Rock Slide and crack back at the opponent with its own attack.
+Looking through the top Pokemon in competitive play right now, Gyarados may have a difficult time handling opponents carrying Rock Slide, a super effective move which nearly one-hit KO's Gyarados under various circumstances. The popularity of this move and other physical attackers in general in the current landscape likely speaks to the HP and Defense point investment in the best fit spread, allowing Gyarados to healthily survive a Rock Slide and crack back at the opponent with its own attack.
 
 ### Attack
 
