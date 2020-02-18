@@ -36,7 +36,7 @@ As you can hopefully see, this problem of optimizing EV allocation runs heavily 
 
 I touched on genetic algorithms briefly up above, now let's circle back to see how we might apply the technique to this problem. A genetic algorithm's purpose is to use the principles of survival of the fittest and natural selection to approximate solutions to problems. At a high level, the goal is to generate a population of parents with varying EV's, and simulate their battle results against many other Pokemon. Based on these simulations, the weakest 50% of the population will be pruned, while the surviving parents will crossover with one-another to produce offspring which resemble a combination of their two EV allocations. These offspring have a random probability to mutate, meaning their EV's will deviate from their parents, to keep the gene pool constantly using trial and error for improvement.
 
-This simulate, cull, reproduce cycle is referred to as an iteration, or generation. The more generations this process continues for, the more heavily the surviving EV allocations will resemble a best fit solution to the optimization problem.
+This simulate, cull, reproduce cycle is referred to as an iteration, or generation. The more generations this process continues for, the more heavily the surviving EV allocations will resemble a best fit solution to the optimization problem. By the end of this simulation, the genetic algorithm will have determined an optimal EV spread for the chosen Pokemon, and output this spread to be used.
 
 ## Building the Simulation
 
