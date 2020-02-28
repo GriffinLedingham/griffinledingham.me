@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Build to scale... then scale
+ - brain dumps & code</title>
+    <meta name="Description" content="Discussions, problems and learnings about software development and games.">
+    <meta name="google-site-verification" content="IJxJYgASSACZ_sNBted5fW14_RX1eeIn19pwSmFlz0M">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:description" content="Discussions, problems and learnings about software development and games.">
+    <meta name="twitter:title" content="Build to scale... then scale
+ - brain dumps & code">
+    <link rel="stylesheet" type="text/css" href="/styles/global.css">
+</head>
+<body>
+    <header>
+        <a href="/" id="title">
+            <div>brain dumps</div>
+            <span>& code</span>
+        </a>
+        <span id="socials">
+            <div><a href="https://github.com/GriffinLedingham" target="_blank"><img src="/images/github.svg"> <span>griffinledingham</span></a></div>
+            <div><a href="https://twitter.com/gcledingham" target="_blank"><img src="/images/twitter.svg"> <span>@gcledingham</span></a></div>
+            <div><a href="https://www.pikalytics.com" target="_blank"><img src="/images/term.svg"> <span>pikalytics</span></a></div>
+            <div><a href="https://www.kanoapps.com" target="_blank"><img src="/images/work.svg"> <span>kano</span></a></div>
+        </span>
+    </header>    <div id="post">
+    <h5>February 27, 2020</h5>
+<h1>Build to scale... then scale</h1>
+<h2>Planning Ahead</h2>
+<p>I recently set out to design a scalable server architecture for a realtime game system at work, unlike any other product we currently operate. With this challenge came a unique set of requirements to adhere to, as well scalability needs for future-proofing the design.</p>
+<p>The system needed to support large loads of concurrent players, communicating between one another over web sockets through a middle-man game server. The game server would be processing significant business logic calculations, and so web socket traffic should be handled separately from these calculations as to not run into performance troubles for any aspect of the flow. Game servers start and finish independently of one another, and so the system must allow web sockets to communicate freely with any game server, at any given time.</p>
+<p>Game instances must record their states, so that in the event of a failure, the game instance may be near-instantly spun back up again with minimal downtime for the player. This means that games should not be tied to any piece of hardware or address in memory, so that rebuilding is possible on the fly.</p>
+<p>I began to design the architecture for my maximum capacity, absolute success case (or my &quot;BHAG&quot; - Big Hairy Audacious Goal). What this allowed me to do was conceptualize where the system needed to go if we reached our ultimate goal for the product and became stretched thin on computation. The practice of beginning with this level of scope allows me to visualize what the end-game for a system might look like, and then work backwards from there simplifying until I reach a healthy middle ground.</p>
+<h2>My &quot;BHAG&quot; Architecture</h2>
+<p><a href="/images/scale/web-archi-initial.jpg"><img src="/images/scale/web-archi-initial.jpg" alt="alt text" title="Logo Title Text 1"></a></p>
+<p>This initial iteration allowed for unlimited horizontal scaling of web socket servers, tucked behind an AWS Elastic Load Balancer/Application Load Balancer. This would allow me to support any amount of concurrent web socket traffic, without worrying about clogging up the event loop of a single Node.js process. The game system involves heavy traffic through every players' web socket, so the event loop can get very busy, very quickly. That said, the popular Node.js web socket library socket.io touts support for thousands of concurrent sockets before serious performance degradation, so this problem is not likely to arise out of the gate.</p>
+<p>Next, these web socket servers needed a way to interact with the independent servers processing business logic for the game. My plan for this was to rely on a Redis pub/sub node, due to the blazing fast performance you can achieve on heavy loads. Redis would act as a mediator between web socket servers and game servers, allowing the client to send a message to any given game server and accept messages in return.</p>
+<p>As game servers scale in and out, this makes it a breeze for web sockets to interact with each new one that comes online, not worrying about which physical server it is sending and receiving requests with.</p>
+<p>If a game instance crashes at any point, a new game server may be scaled in and restored from the most recent snapshot of the game's state and requests will now be directed to this new server for the game instance, allowing players to quickly pick up where they left off.</p>
+<h2>The Simple Architecture</h2>
+<p><a href="/images/scale/web-archi-simple.png"><img src="/images/scale/web-archi-simple.png" alt="alt text" title="Logo Title Text 1"></a></p>
+<p>After determining what I would need to run my system at maximum capacity, I began looking at how I could scale this back to minimum capacity, or as simple as possible. As the image demonstrates, this got <em>real</em> simple.</p>
+<p>If I'm not worried about maximum capacity, and pushing the limits on the Node.js event loop, I'm no longer tasked with separating the web socket server from the game instances. With all aspects of the system now living in a single box, this removes the use case for Redis as data no longer needs to be accessible cross-server in a horizontally scaled fashion.</p>
+<p>At its simplest form, the architecture is now able to accept client web socket data, pass it into the server's business logic, and respond to the client right then and there over the same web socket. This sounds great, but have things now become over-simplified? If a few thousand users unexpectedly connect via web socket, how will a single Node.js process handle this on a single event loop? Though this is the minimum capacity case, I don't want to leave myself with a boat load of tech debt waiting for me if success comes quickly.</p>
+<p>Game state recovery becomes tricky in this architecture, as a crash or stability fault compromises the entire Node.js server, and leaves it in a state which is not safe to continue running. The server must fully restart, causing all game instances to be rebuilt on the single Node.js server and disrupting all traffic.</p>
+<h2>The In-Between Solution</h2>
+<p><a href="/images/scale/web-archi-hood.jpg"><img src="/images/scale/web-archi-hood.jpg" alt="alt text" title="Logo Title Text 1"></a></p>
+<p>Above is the solution I finally settled on, and it was easily my favorite of the iterations. Though sticking to a single server for simplicity's sake, I utilized Node.js workers to run multiple event loops across any amount of threads the host hardware would provide me. Though Node.js is commonly discussed as an &quot;async&quot; heavy environment, it's common knowledge that this &quot;async&quot; really just means fancy queuing of synchronous calls. I built the system out into modular components designed for a single-server Master/Worker flow, but which nicely map to my multi-hardware &quot;BHAG&quot; design.</p>
+<p>Workers allowed me to break out of Node.js' standard event driven programming style, splitting the architecture over multiple CPU threads to achieve a similar result to my complicated architecture design, without having to manage scaling servers in and out. Node.js' worker API allows you to easily create workers, and communicate between the master thread and worker threads using an notify/listen flow (sounds like a good stand-in for Redis, doesn't it?).</p>
+<p>In the latest design, instead of a wall of horizontal web socket servers, the server uses the <code>UserSocketManager</code> to keep track of live web socket connections. This <code>UserSocketManager</code> can be distributed over workers to allow for more concurrent socket traffic than a single event loop can support.</p>
+<p>Game instances now live on horizontally scalable worker threads, meaning each one can utilize its own thread if needed, or share threads with other games (just less of them than an all-in-one solution). Each worker thread has a <code>GameWorker</code> which is responsible for sending communication between the game instance, and the master thread via the worker's pub/sub channel. This <code>GameWorker</code> is what makes it possible for more than one <code>Game</code> to run on a single thread. Messages are dispatched to whichever <code>Game</code> instance they are intended for, and then returned via the <code>GameWorker</code>.</p>
+<p>The <code>GameManager</code> works as a routing layer on the master thread for requests from the <code>UserSocketManager</code>, instructing requests from the user web sockets which worker they can find their desired game instance on. This request is then passed along into the <code>Worker</code> and relayed by that worker's <code>GameWorker</code>.</p>
+<p>If a game instance stumbles and needs to be restored, a new worker thread may be spawned in, or if an existing worker has room the game instance may be simply restored there. This allows me to simply discard the failed worker thread, and move along.</p>
+<h2>Now What?</h2>
+<p>Ultimately, this system has allowed me to maintain multiple Node.js event loops without having to manage hardware scaling, or any sort of cross-server communication. As far as a product MVP, this solution provided me a robust, scalable, minimum-viable-product, without having to resort to multiple pieces of hardware. This keeps costs low, and fault tolerance significantly simpler!</p>
+<p>If traffic reaches the point that the current server's core count can no longer handle the number of required threads, I can either move to a server with a greater core count, or opt to move this modular system across multiple layers of hardware as in my &quot;BHAG&quot; architecture.</p>
+<p>The <code>UserSocketManager</code> simply becomes the horizontal layer of web socket servers. The worker notify/listen behaviour ports beautifully to a Redis pub/sub node. Lastly, the worker thread <code>GameWorker</code>/<code>Game</code> pairing can easily be moved to their own hardware servers, which may be horizontally scaled behind Redis for communication with user web sockets.</p>
+<p>Before you know it, I'm looking at my original &quot;BHAG&quot; diagram up above, but without having to worry about this complex configuration for launch day of the product. Modular design has allowed me to launch small, and scale up when it becomes a necessary next step.</p>
+<p>While I'm over-simplifying how that transition would likely go in reality, it is clear how well the final single-server iteration maps to a multi-hardware setup when traffic demands this post-release. Keeping things minimal to start meant faster iteration and product release, as opposed to over-architecting a system that may never see reasonable return on investment.</p>
+<p>&quot;Think big then scale back&quot; is a common practice I utilize in developing game systems. This allows me to maintain time to market and return on investment, while planning ahead to try and minimize technical debt. Web scaling is a frightening venture, but with some iteration and foresight, you can feel confident that you've set your product up for long-term success!</p>
+<p>-Griffin</p>
+
+    <iframe src="https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fgriffinledingham.me%2Fpost%2F002-scale&layout=button&size=small&appId=435053913275830&width=77&height=20" width="77" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allow="encrypted-media"></iframe>
+    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+    <footer>
+        <span><img src="/images/node-dot-js.svg"> Built with <a href="https://github.com/GriffinLedingham/node-blog-starter/" target="_blank">my Node.js blog template</a>.</span>
+    </footer></body>
+<script>
+  if(location.origin.indexOf('localhost') !== -1) {
+      document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+  }
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158710940-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-158710940-1');
+</script>
+</html>
