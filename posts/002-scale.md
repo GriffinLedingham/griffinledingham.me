@@ -2,7 +2,7 @@ Build to scale... then scale
 
 </title>
 
-##### February 27, 2020
+##### February 27, 2020 · 7 min read
 
 # Build to scale... then scale
 
@@ -26,7 +26,7 @@ I began to design the architecture for my maximum capacity, absolute success cas
 
 ## My "BHAG" Architecture
 
-[![alt text](/images/scale/web-archi-initial.jpg "Logo Title Text 1")](/images/scale/web-archi-initial.jpg)
+[![Build to Scale - BHAG Server Architecture](/images/scale/web-archi-initial.jpg "Build to Scale - BHAG Server Architecture")](/images/scale/web-archi-initial.jpg)
 
 This initial iteration allowed for unlimited horizontal scaling of web socket servers, tucked behind an AWS Elastic Load Balancer/Application Load Balancer. This would allow me to support any amount of concurrent web socket traffic, without worrying about clogging up the event loop of a single Node.js process. The game system involves heavy traffic through every players' web socket, so the event loop can get very busy, very quickly. That said, the popular Node.js web socket library socket.io touts support for thousands of concurrent sockets before serious performance degradation, so this problem is not likely to arise out of the gate.
 
@@ -38,7 +38,7 @@ If a game instance crashes at any point, a new game server may be scaled in and 
 
 ## The Simple Architecture
 
-[![alt text](/images/scale/web-archi-simple.png "Logo Title Text 1")](/images/scale/web-archi-simple.png)
+[![Build to Scale - Simple Server Architecture](/images/scale/web-archi-simple.png "Build to Scale - Simple Server Architecture")](/images/scale/web-archi-simple.png)
 
 After determining what I would need to run my system at maximum capacity, I began looking at how I could scale this back to minimum capacity, or as simple as possible. As the image demonstrates, this got _real_ simple.
 
@@ -50,7 +50,7 @@ Game state recovery becomes tricky in this architecture, as a crash or stability
 
 ## The In-Between Solution
 
-[![alt text](/images/scale/web-archi-hood.jpg "Logo Title Text 1")](/images/scale/web-archi-hood.jpg)
+[![Build to Scale - Final Server Architecture](/images/scale/web-archi-hood.jpg "Build to Scale - Final Server Architecture")](/images/scale/web-archi-hood.jpg)
 
 Above is the solution I finally settled on, and it was easily my favorite of the iterations. Though sticking to a single server for simplicity's sake, I utilized Node.js workers to run multiple event loops across any amount of threads the host hardware would provide me. Though Node.js is commonly discussed as an "async" heavy environment, it's common knowledge that this "async" really just means fancy queuing of synchronous calls. I built the system out into modular components designed for a single-server Master/Worker flow, but which nicely map to my multi-hardware "BHAG" design.
 

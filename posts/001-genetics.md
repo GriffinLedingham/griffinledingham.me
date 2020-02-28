@@ -2,7 +2,7 @@ Training Pokemon with genetic algorithms
 
 </title>
 
-##### February 16, 2020
+##### February 16, 2020 · 11 min read
 
 # Training Pokemon with genetic algorithms
 
@@ -26,7 +26,7 @@ The discussion here is based on my implementation of the problem using genetic a
 
 EV's have been a key part of Pokemon's game design complexity since Red and Green in 1996 on the Nintendo Game Boy. Though not displayed to players via the game's user interface, EV's determine the stats of each Pokemon on your team, and what areas they will excel at in combat. Each Pokemon may have a total of 510 EV's, with no more than 252 invested into a single stat (HP, Attack, Defense, Special Atack, Special Defense, Speed). These EV configurations are often represented as a series of 6 numbers, like so: `[100, 100, 100, 150, 50, 10]`
 
-Each point of Effort Value has inherent value, which changes based on external circumstances, and 510 total EV's/252 EV's per stat is the maximum capacity that may be carried. When competing at high-level events, players configure their EV's in such a way that they are getting maximum value out of every point, while remaining within the constraints of the maximums. 
+Each point of Effort Value has inherent value, which changes based on external circumstances, and 510 total EV's/252 EV's per stat is the maximum capacity that may be carried. When competing at high-level events, players configure their EV's in such a way that they are getting maximum value out of every point, while remaining within the constraints of the maximums.
 
 Using [damage calculators](https://pikalytics.com/calc), players are able to determine exactly how much damage their Pokemon will deal/receive when fighting an opponent equipped with varying EV allocations. For example, comparing Arcanine v.s Excadrill, Excadrill's Earthquake move will one-hit KO Arcanine 100% of the time, but when reserving 252 of Arcanine's EV's in Hit Points, this 100% chance drops to only a 31.3% percent chance. This is a much better outcome, but will Arcanine now fare worse in a different matchup due to this specific allocation?
 
