@@ -10,7 +10,7 @@ Competitive Pokemon is a game of numbers, and optimizing EV spreads is one of th
 
 </summary>
 
-##### February 16, 2020
+##### February 16, 2020 · 11 min read
 
 # Training Pokemon with genetic algorithms
 
