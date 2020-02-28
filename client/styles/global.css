@@ -88,6 +88,13 @@ code {
   vertical-align: bottom;
 }
 
+p img {
+  max-height: 400px;
+  margin: auto;
+  text-align: center;
+  display: block;
+}
+
 /* DOM ID's */
 #title {
   text-decoration: none;
