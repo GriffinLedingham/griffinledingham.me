@@ -10,7 +10,7 @@ Web scaling in our modern era of development presents great power, and even grea
 
 </summary>
 
-##### February 27, 2020
+##### February 27, 2020 · 7 min read
 
 # Build to scale... then scale
 
