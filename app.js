@@ -17,7 +17,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.engine("handlebars", exphbs());
 app.set("view engine", "handlebars");
-app.use(express.static("client"));
+app.use(express.static("client", { maxAge: 0 }));
 
 const postsDir = "./posts";
 
