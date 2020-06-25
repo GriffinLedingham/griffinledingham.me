@@ -78,7 +78,7 @@ code {
   font-size: 0.75rem;
   padding: 3px 10px;
   border-radius: 3px;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   font-weight: 600;
   font-family: inherit;
   -webkit-font-smoothing: antialiased;
@@ -86,6 +86,7 @@ code {
   overflow: auto;
   max-width: 90%;
   vertical-align: bottom;
+  max-height: 300px;
 }
 
 p img {

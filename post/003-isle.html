@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Uncovering early metagame trends in Pokemon Isle of Armor
+ - brain dumps & code</title>
+    <meta name="Description" content="Discussions, problems and learnings about software development and games.">
+    <meta name="google-site-verification" content="IJxJYgASSACZ_sNBted5fW14_RX1eeIn19pwSmFlz0M">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:description" content="Discussions, problems and learnings about software development and games.">
+    <meta name="twitter:title" content="Uncovering early metagame trends in Pokemon Isle of Armor
+ - brain dumps & code">
+    <link rel="stylesheet" type="text/css" href="/styles/global.css">
+</head>
+<body>
+    <header>
+        <a href="/" id="title">
+            <div>brain dumps</div>
+            <span>& code</span>
+        </a>
+        <span id="socials">
+            <div><a href="https://github.com/GriffinLedingham" target="_blank"><img src="/images/github.svg"> <span>griffinledingham</span></a></div>
+            <div><a href="https://twitter.com/gcledingham" target="_blank"><img src="/images/twitter.svg"> <span>@gcledingham</span></a></div>
+            <div><a href="https://www.pikalytics.com" target="_blank"><img src="/images/term.svg"> <span>pikalytics</span></a></div>
+            <div><a href="https://www.kanoapps.com" target="_blank"><img src="/images/work.svg"> <span>kano</span></a></div>
+        </span>
+    </header>    <div id="post">
+    <h5>June 25, 2020 · 12 min read</h5>
+<h1>Uncovering early metagame trends in Pokemon Isle of Armor</h1>
+<h2>Usage Statistics</h2>
+<p>In competitive games with finite sets of decisions, researching the field is one of the most meaningful ways that a player can prepare for competitive play. If six out of ten players at a Rock, Paper, Scissors tournament intend to choose scissors for every round, picking rock is the optimal decision. In a sample size of ten players, any of those six scissors players could change their mind before the event. If any one of them decides on paper or rock instead, this means a potential +/- 10% swing to your success rate. Using this logic, a sample size of 1,000,000 players means that a single player changing their mind equates to a 0.0001% deviation in your success rate. If trends can be predicited at a larger scale, decisions made by individual opponents become less important and research becomes more impactful on success rate.</p>
+<p>Competitive Pokemon is an environment that behaves a lot like this example, but with significantly more complexity thrown into the mix. Usage statistics allow Pokemon players to prepare for a lot of the variables they will face off against at tournaments and online ladder games. Knowing many of the decisions your opponents may make before the game starts can help you react and maneuver through the complicated turns of a Pokemon battle.</p>
+<p>Since I started <a href="https://www.pikalytics.com">Pikalytics</a> in 2016, competitive players have frequented the site to stay on top of metagame trends while team building. Pikalytics provides access to two major data aggregations: monthly <a href="https://play.pokemonshowdown.com%5D">Pokemon Showdown</a> battle results (1+ million battles per month), and daily Pokemon Home results from Battle Stadium on Pokemon Sword &amp; Shield for the Nintendo Switch (previously I acquired this data from the Pokemon Global Link. RIP). Between these two sources, players get massive sample sizes from the Pokemon Showdown monthly data, and up to date, smaller sample sizes from daily Pokemon Home updates.</p>
+<h2>Keeping Up With Content</h2>
+<p>When new content is released, usage and trends change dramatically in a pinch. Pokemon Sword &amp; Shield's first DLC release, Isle of Armor, dropped on June 17, which introduced a large pool of new Pokemon into the mix. Players began team building and battling in no time, but without metagame trends to review they went into their team building flying blind.</p>
+<p>In recent years, I've worked hard to keep Pikalytics coverage on top of season starts for the <a href="https://twitter.com/Pikalytics/status/1034973028805836801">VGC 2019</a>, <a href="https://twitter.com/Pikalytics/status/1063106158867566592">Let's Go</a>, <a href="https://twitter.com/Pikalytics/status/1197748603558617088">VGC 2020</a>, and now <a href="https://twitter.com/Pikalytics/status/1273720882150535168">Isle of Armor</a> competitive formats. When Isle of Armor released, Pokemon Showdown iterated quickly and began allowing players to battle with the new Pokemon immediately. Though battles began taking place, Showdown's monthly data schedule meant that Pikalytics' regular aggregation schedule would have to wait until July 1st to begin displaying trends.</p>
+<p>To cover these new formats before the regular release interval, I built a replay parser to aggregate Showdown battles in near realtime. The first format that I built this realtime coverage for was the Let's Go Pikachu &amp; Eevee launch. Battles began taking place a week before the game's launch on <a href="https://nexus.psim.us">https://nexus.psim.us</a>, so I set the parser to process every public battle that took place over the week leading up to the game's release. I was able to utilize this to immediately get aggregate data up on Pikalytics, and by the time of the Let's Go launch, Pikalytics already had a full rundown of the format's usage based on a full week of battles.</p>
+<p>Starting last week, this replay parser was used to cover the beginning of the <a href="https://pikalytics.com/pokedex/isle">Isle of Armor VGC competitive format on Pikalytics</a> since Showdown began supporting the format. This has been a wildly popular data set, and I've received a number of inquiries into where it's coming from, so I thought I'd bring that to light for everyone to better understand what they're seeing.</p>
+<h2>Gathering the Battles</h2>
+<p>My replay parser processes each public battle that takes place on Pokemon Showdown (for the desired format), and dumps the result into an anonymized battle log for Pikalytics processing. I intentionally do not retain any individual information in these battle logs to keep this data set from ever being used negatively for scouting players. The output data from each replay processed by my parser data looks as such:</p>
+<pre><code class="language-json">{
+  &quot;winner&quot;: &quot;player2&quot;,
+  &quot;turns&quot;: 13,
+  &quot;p1team&quot;: [
+    {
+      &quot;name&quot;: &quot;Weezing-Galar&quot;,
+      &quot;species&quot;: &quot;Weezing-Galar&quot;,
+      &quot;moves&quot;: [],
+      &quot;nature&quot;: &quot;&quot;,
+      &quot;level&quot;: 50
+    },
+    {
+      &quot;name&quot;: &quot;Duraludon&quot;,
+      &quot;species&quot;: &quot;Duraludon&quot;,
+      &quot;moves&quot;: [&quot;darkpulse&quot;],
+      &quot;level&quot;: 50
+    },
+    {
+      &quot;name&quot;: &quot;Porygon-Z&quot;,
+      &quot;species&quot;: &quot;Porygon-Z&quot;,
+      &quot;item&quot;: &quot;Life Orb&quot;,
+      &quot;moves&quot;: [&quot;maxstrike&quot;, &quot;icebeam&quot;],
+      &quot;level&quot;: 50
+    },
+    {
+      &quot;name&quot;: &quot;Clefairy&quot;,
+      &quot;species&quot;: &quot;Clefairy&quot;,
+      &quot;moves&quot;: [],
+      &quot;level&quot;: 50
+    },
+    {
+      &quot;name&quot;: &quot;Urshifu-Rapid-Strike&quot;,
+      &quot;species&quot;: &quot;Urshifu-Rapid-Strike&quot;,
+      &quot;moves&quot;: [],
+      &quot;level&quot;: 50
+    },
+    {
+      &quot;name&quot;: &quot;Whimsicott&quot;,
+      &quot;species&quot;: &quot;Whimsicott&quot;,
+      &quot;item&quot;: &quot;Focus Sash&quot;,
+      &quot;moves&quot;: [&quot;tailwind&quot;, &quot;energyball&quot;],
+      &quot;level&quot;: 50
+    }
+  ],
+  &quot;p2team&quot;: [
+    ...
+  ]
+}
+</code></pre>
+<p>These crawled battle logs contain a few important fields that I'll go over. Most notably, every log contains all 6 Pokemon on each players' team, whether they chose them as their 4 or not. These team rosters allow me to accurately generate team usage, displaying the percent of teams that include a Pokemon over the course of all processed battles. As well, these precisely accurate usage percentages allow me to generate equally accurate teammate usage statistics, displaying the frequency that two Pokemon appear together on a team.</p>
+<p>Replays of Pokemon Showdown battles allow me to keep track of every move used by each Pokemon during a battle. Full move sets are not able to be gathered via replays, as Pokemon Showdown keeps these moves hidden to respect the privacy of the team builder. What this means is that I'm able to generate a pseudo move-usage metric, but it doesn't produce nearly as meaningful results as the monthly Showdown aggregation, or the Pokemon Home Battle Stadium Doubles usage. For this reason, I have removed usage percents entirely from the Isle of Armor preview move stats, and instead opted for a simple &quot;rank&quot;. Ranking them in this way allows me to still display which moves are used with the most frequency, but without having to display a usage percentage that would be fairly meaningless due to these constraints. Unfortunately, this means that the usage aggregate will miss out on moves that players brought, but never used... but those moves likely aren't great anyhow if they've never been played.</p>
+<p>One pitfall that was brought forward to me by <a href="https://www.twitter.com/komvgc">@komvgc</a> was Hatterene reporting Spore as one of its top moves, due to reflecting this move so frequently with Magic Bounce. Other cases like this exist with Copycat Pokemon like Liepard reporting Trick Room usage, and many more. My likely solution to this issue will be to filter move usage based on each Pokemon's learnset as part of my data processing pipeline.</p>
+<p>Similar to Moves, Items and Abilities work much the same and can only be observed when they are triggered. This leaves out many items and abilities which provide passive bonuses that will never trigger and cause a mention of them in the replay. For this reason, I made the decision to completely remove items and abilities from the Isle of Armor usage stats. Along with Items and Abilities, Spreads and Natures are also very difficult to process out of these replays. While I could attempt some voodoo magic to assume EV's, and guess Natures based on if X species moved before Y species, etc., I determined this would be WAY more effort than it would be worth, and it would likely never come to fruition anyhow.</p>
+<p>To fill in these blanks I've utilized past formats to lean on, where I saw their data points relevant for Items/Abilities/Spreads/Natures. This solution doesn't come without its issues of course, as <a href="https://twitter.com/MeninoJardim">@EmbC</a> on Twitter noticed that Porygon-2's most popular spread included 60 EV investment into Attack. This EV spread popped up here due to the fact that Porygon-2's data was pulled from VGC 2017 where it utilized Return and Frustration, which are no longer legal moves in its learn set. I solved this problem by adjusting the order that formats are ranked for relevance to Isle of Armor VGC 2020. VGC 2015 has a number of similar Pokemon with Isle of Armor VGC 2020, so this was the top priority format chosen in response to this issue.</p>
+<h2>Crunching the Results</h2>
+<p>At this point, I have now collected all Isle of Armor public replays over a time period, and dumped them into nice formatted JSON as displayed above. From here is where the job becomes a bit trickier, and computationally intensive. I previously had built a <a href="https://github.com/GriffinLedingham/showdown-parser">Pokemon Showdown Parser</a> during past formats such as VGC 2019 where I worked with Zarel of Pokemon Showdown to produce rather <a href="https://twitter.com/Pikalytics/status/951490111635521536">large data mining projects</a> off of the raw Pokemon Showdown battle logs. When I built the previously mentioned replay parser, I designed the data output in such a way that it mirrored the format of the battle logs I had worked with previously, so that I could dust off my Showdown Parser and use it once again.</p>
+<p>While my Showdown Parser is a rather complicated project, the premise of it is quite simple: process tens/hundreds of thousands or millions of battles and aggregate all of their data into summed up stats and percentages/rankings. Ultimately, this is all the tool really does, but the size of the data set being processed means that this becomes a multi-threading/memory management task more than anything. I won't get into details around that, as its not the intention of this article, but please feel free to check out the Github repository above if you're interested in learning more.</p>
+<p>For my Isle of Armor preview usage on Pikalytics, this data sample size is in the tens of thousands of battles, and not quite yet into the hundreds of thousands. Regardless, tens of thousands of battles provide a great sample size for usage statistics, so this data felt meaningful enough for me to share with the public.</p>
+<p>As I hand crafted this Showdown Parser for the intention of use on Pikalytics, it very conveniently bundles all of the aggregate data up into a data set that looks like this:</p>
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;Rillaboom&quot;,
+        &quot;isRank&quot;: true,
+        &quot;types&quot;: [&quot;grass&quot;],
+        &quot;stats&quot;: {
+            &quot;hp&quot;: 100,
+            &quot;atk&quot;: 125,
+            &quot;def&quot;: 90,
+            &quot;spa&quot;: 60,
+            &quot;spd&quot;: 70,
+            &quot;spe&quot;: 85
+        },
+        &quot;abilities&quot;: [
+            { &quot;ability&quot;: &quot;Grassy Surge&quot;, &quot;percent&quot;: 1 },
+            { &quot;ability&quot;: &quot;Overgrow&quot;, &quot;percent&quot;: 2 }
+        ],
+        &quot;raw_count&quot;: &quot;5&quot;,
+        &quot;percent&quot;: 30,
+        &quot;ranking&quot;: 1,
+        &quot;viability&quot;: &quot;F&quot;,
+        &quot;items&quot;: [
+            { &quot;item&quot;: &quot;Assault Vest&quot;, &quot;item_us&quot;: &quot;Assault_Vest&quot;, &quot;percent&quot;: 1 },
+            { &quot;item&quot;: &quot;Life Orb&quot;, &quot;item_us&quot;: &quot;Life_Orb&quot;, &quot;percent&quot;: 2 },
+            { &quot;item&quot;: &quot;Grassy Seed&quot;, &quot;item_us&quot;: &quot;Grassy_Seed&quot;, &quot;percent&quot;: 3 },
+            { &quot;item&quot;: &quot;Leftovers&quot;, &quot;item_us&quot;: &quot;Leftovers&quot;, &quot;percent&quot;: 4 },
+            { &quot;item&quot;: &quot;Coba Berry&quot;, &quot;item_us&quot;: &quot;Coba_Berry&quot;, &quot;percent&quot;: 5 },
+            { &quot;item&quot;: &quot;Choice Band&quot;, &quot;item_us&quot;: &quot;Choice_Band&quot;, &quot;percent&quot;: 6 },
+            { &quot;item&quot;: &quot;Sitrus Berry&quot;, &quot;item_us&quot;: &quot;Sitrus_Berry&quot;, &quot;percent&quot;: 7 },
+            { &quot;item&quot;: &quot;Miracle Seed&quot;, &quot;item_us&quot;: &quot;Miracle_Seed&quot;, &quot;percent&quot;: 8 },
+            {
+                &quot;item&quot;: &quot;Weakness Policy&quot;,
+                &quot;item_us&quot;: &quot;Weakness_Policy&quot;,
+                &quot;percent&quot;: 9
+            },
+            { &quot;item&quot;: &quot;Choice Scarf&quot;, &quot;item_us&quot;: &quot;Choice_Scarf&quot;, &quot;percent&quot;: 10 }
+        ],
+        &quot;spreads&quot;: [
+            { &quot;nature&quot;: &quot;Careful&quot;, &quot;ev&quot;: &quot;252/0/60/0/196/0&quot;, &quot;percent&quot;: 1 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;180/140/52/0/100/36&quot;, &quot;percent&quot;: 2 },
+            { &quot;nature&quot;: &quot;Jolly&quot;, &quot;ev&quot;: &quot;20/244/4/0/20/220&quot;, &quot;percent&quot;: 3 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/116/4/0/132/4&quot;, &quot;percent&quot;: 4 },
+            { &quot;nature&quot;: &quot;Impish&quot;, &quot;ev&quot;: &quot;244/4/180/0/4/76&quot;, &quot;percent&quot;: 5 },
+            { &quot;nature&quot;: &quot;Impish&quot;, &quot;ev&quot;: &quot;140/68/100/0/196/4&quot;, &quot;percent&quot;: 6 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;244/252/4/0/4/4&quot;, &quot;percent&quot;: 7 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;158/252/4/0/76/20&quot;, &quot;percent&quot;: 8 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/252/0/0/4/0&quot;, &quot;percent&quot;: 9 },
+            { &quot;nature&quot;: &quot;Jolly&quot;, &quot;ev&quot;: &quot;252/52/4/0/100/100&quot;, &quot;percent&quot;: 10 },
+            { &quot;nature&quot;: &quot;Impish&quot;, &quot;ev&quot;: &quot;252/4/172/0/44/36&quot;, &quot;percent&quot;: 11 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;212/180/44/0/68/0&quot;, &quot;percent&quot;: 12 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/188/68/0/0/0&quot;, &quot;percent&quot;: 13 },
+            { &quot;nature&quot;: &quot;Impish&quot;, &quot;ev&quot;: &quot;252/4/140/0/36/76&quot;, &quot;percent&quot;: 14 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;244/192/0/0/44/28&quot;, &quot;percent&quot;: 15 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/164/4/0/84/4&quot;, &quot;percent&quot;: 16 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/124/12/0/52/68&quot;, &quot;percent&quot;: 17 },
+            { &quot;nature&quot;: &quot;Jolly&quot;, &quot;ev&quot;: &quot;36/252/0/0/0/220&quot;, &quot;percent&quot;: 18 },
+            { &quot;nature&quot;: &quot;Adamant&quot;, &quot;ev&quot;: &quot;252/0/196/0/0/60&quot;, &quot;percent&quot;: 19 },
+            { &quot;nature&quot;: &quot;Careful&quot;, &quot;ev&quot;: &quot;244/4/84/0/172/4&quot;, &quot;percent&quot;: 20 }
+        ],
+        &quot;moves&quot;: [
+            { &quot;move&quot;: &quot;Grassy Glide&quot;, &quot;percent&quot;: 1, &quot;type&quot;: &quot;grass&quot; },
+            { &quot;move&quot;: &quot;Fake Out&quot;, &quot;percent&quot;: 2, &quot;type&quot;: &quot;normal&quot; },
+            { &quot;move&quot;: &quot;Knock Off&quot;, &quot;percent&quot;: 3, &quot;type&quot;: &quot;dark&quot; },
+            { &quot;move&quot;: &quot;Wood Hammer&quot;, &quot;percent&quot;: 4, &quot;type&quot;: &quot;grass&quot; },
+            { &quot;move&quot;: &quot;U-turn&quot;, &quot;percent&quot;: 5, &quot;type&quot;: &quot;bug&quot; },
+            { &quot;move&quot;: &quot;High Horsepower&quot;, &quot;percent&quot;: 6, &quot;type&quot;: &quot;ground&quot; },
+            { &quot;move&quot;: &quot;Protect&quot;, &quot;percent&quot;: 7, &quot;type&quot;: &quot;normal&quot; },
+            { &quot;move&quot;: &quot;Drum Beating&quot;, &quot;percent&quot;: 8, &quot;type&quot;: &quot;grass&quot; },
+            { &quot;move&quot;: &quot;Drain Punch&quot;, &quot;percent&quot;: 9, &quot;type&quot;: &quot;fighting&quot; },
+            { &quot;move&quot;: &quot;Superpower&quot;, &quot;percent&quot;: 10, &quot;type&quot;: &quot;fighting&quot; }
+        ],
+        &quot;team&quot;: [
+            {
+                &quot;pokemon&quot;: &quot;Togekiss&quot;,
+                &quot;percent&quot;: &quot;37.797&quot;,
+                &quot;types&quot;: [&quot;fairy&quot;, &quot;flying&quot;]
+            },
+            { &quot;pokemon&quot;: &quot;Politoed&quot;, &quot;percent&quot;: &quot;26.518&quot;, &quot;types&quot;: [&quot;water&quot;] },
+            {
+                &quot;pokemon&quot;: &quot;Kingdra&quot;,
+                &quot;percent&quot;: &quot;23.400&quot;,
+                &quot;types&quot;: [&quot;water&quot;, &quot;dragon&quot;]
+            },
+            { &quot;pokemon&quot;: &quot;Cinderace&quot;, &quot;percent&quot;: &quot;22.826&quot;, &quot;types&quot;: [&quot;fire&quot;] },
+            { &quot;pokemon&quot;: &quot;Porygon2&quot;, &quot;percent&quot;: &quot;17.884&quot;, &quot;types&quot;: [&quot;normal&quot;] },
+            {
+                &quot;pokemon&quot;: &quot;Primarina&quot;,
+                &quot;percent&quot;: &quot;17.248&quot;,
+                &quot;types&quot;: [&quot;water&quot;, &quot;fairy&quot;]
+            },
+            {
+                &quot;pokemon&quot;: &quot;Marowak-Alola&quot;,
+                &quot;percent&quot;: &quot;15.710&quot;,
+                &quot;types&quot;: [&quot;fire&quot;, &quot;ghost&quot;]
+            },
+            {
+                &quot;pokemon&quot;: &quot;Duraludon&quot;,
+                &quot;percent&quot;: &quot;13.966&quot;,
+                &quot;types&quot;: [&quot;steel&quot;, &quot;dragon&quot;]
+            },
+            {
+                &quot;pokemon&quot;: &quot;Magnezone&quot;,
+                &quot;percent&quot;: &quot;7.281&quot;,
+                &quot;types&quot;: [&quot;electric&quot;, &quot;steel&quot;]
+            },
+            {
+                &quot;pokemon&quot;: &quot;Bisharp&quot;,
+                &quot;percent&quot;: &quot;5.107&quot;,
+                &quot;types&quot;: [&quot;dark&quot;, &quot;steel&quot;]
+            },
+            { &quot;pokemon&quot;: &quot;Comfey&quot;, &quot;percent&quot;: &quot;2.933&quot;, &quot;types&quot;: [&quot;fairy&quot;] }
+        ]
+    },
+    ...
+]
+</code></pre>
+<h2>Updating the Game Data</h2>
+<p>With new Pokemon content, comes new game data that isn't yet supported by Pikalytics. Thankfully, Pokemon Showdown has a fantastic open-source community that jumps on this task in a heartbeat once anything new hits the game. <a href="https://github.com/smogon/pokemon-showdown/pull/6841">@KrisXV</a> put in a huge amount of work at the launch of Isle of Armor to get the Pokemon Showdown dataset fully updated as the data began coming out from the new release. Once the data is all up to date on the main Pokemon Showdown Github repository, <a href="https://github.com/pkmn/ps/blob/master/dex">@pkmn/dex</a> is a Node.js package maintained to make this data easily accessible to other projects which I utilized to process the new Pokemon, moves, and abilities in the Showdown Parser.</p>
+<h2>Sending It Live</h2>
+<p>At this point, all of the pieces to the puzzle were together, and the Isle of Armor data set was ready to publish on Pikalytics. This is a pretty simple process, that uses a custom deploy pipeline I've built that keeps Pikalytics running through the full deploy until the new data content finishes processing.</p>
+<p>Moving forward from initial release, I have continued crawling replays daily to keep Pikalytics up to date as the new format continues to evolve. Last week, Pokemon announced the official ruleset for ranked series 5 which included Terrakion, Cobalion and Verizion, unknown to the community before this announcement. Pokemon Showdown got this format change implemented within a few days, at which point I scrapped the existing Isle of Armor data I had and started fresh to make sure that format is accurate following Terrakion's inclusion.</p>
+<h2>Moving Past Isle Launch</h2>
+<p>Carrying forward, I will continue publishing up to date Isle of Armor usage daily until July 1st when the Pokemon Showdown monthly aggregate will be ready to go. July 1st also brings the start of ranked season 5 on Pokemon Sword &amp; Shield Battle Stadium, allowing me to begin parsing this second data source as well for Pikalytics.</p>
+<p>Once July hits, I'll be able to breath again, as Pikalytics will return to the standard data cycle of monthly Pokemon Showdown data updates and 3-4 updates per week of the latest console Battle Stadium data for Isle of Armor.</p>
+<p>Early format usage gathering is always a fun and exciting challenge I dive into when a new format begins. Every new season poses fresh challenges and new requirements to develop tools for, so I look forward to the launch of Crown Tundra to start this scramble up again! If you'd like to know anything more about the topics discussed here, I can be reached via my personal Twitter <a href="https://twitter.com/gcledingham">@gcledingham</a> or via the official <a href="https://twitter.com/pikalytics">@Pikalytics</a> Twitter where I share frequent updates, and interesting data projects like what I've discussed here.</p>
+<p>Until next time.</p>
+<p>-Griffin</p>
+
+    <iframe src="https://www.facebook.com/plugins/share_button.php?href=https%3A%2F%2Fgriffinledingham.me%2Fpost%2F003-isle&layout=button&size=small&appId=435053913275830&width=77&height=20" width="77" height="20" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowTransparency="true" allow="encrypted-media"></iframe>
+    <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+    <footer>
+        <span><img src="/images/node-dot-js.svg"> Built with <a href="https://github.com/GriffinLedingham/node-blog-starter/" target="_blank">my Node.js blog template</a>.</span>
+    </footer></body>
+<script>
+  if(location.origin.indexOf('localhost') !== -1) {
+      document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+  }
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-158710940-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-158710940-1');
+</script>
+</html>
