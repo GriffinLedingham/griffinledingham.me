@@ -1,0 +1,139 @@
+html {
+  font-size: 14px;
+}
+
+body {
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-size: 3rem;
+
+  margin-block-start: 0px;
+  margin-inline-start: 0px;
+
+  margin-top: 1rem;
+
+  letter-spacing: -0.016em;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+h2 {
+  margin-top: 4rem;
+}
+
+h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-block-end: 0;
+  margin-inline-end: 0px;
+}
+
+a {
+  color: cornflowerblue;
+}
+
+p {
+  letter-spacing: 0.004em;
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #121212;
+}
+
+ul {
+  letter-spacing: 0.004em;
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #121212;
+}
+
+li {
+  margin-top: 1rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  max-width: 1000px;
+  margin: 3rem auto 11rem;
+}
+
+footer {
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 10rem 0 5rem;
+  color: #888;
+}
+
+code {
+  border: 1px solid #dee2e6;
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 3px;
+  /* white-space: nowrap; */
+  font-weight: 600;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  overflow: auto;
+  max-width: 90%;
+  vertical-align: bottom;
+  max-height: 300px;
+}
+
+p img {
+  max-height: 400px;
+  max-width:100%;
+  margin: auto;
+  display: block;
+}
+
+/* DOM ID's */
+#title {
+  text-decoration: none;
+  color: black;
+}
+
+#post,
+#posts {
+  width: 700px;
+  min-height: 100vh;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#socials {
+  text-align: right;
+  line-height: 1.6;
+}
+
+#socials img,
+footer img {
+  height: 14px;
+  vertical-align: middle;
+}
+
+#socials a {
+  text-decoration: none;
+}
+
+#posts div {
+  margin-bottom: 5.25rem;
+}
+
+/* Media Queries */
+
+@media screen and (max-width: 800px) {
+  #post,
+  #posts {
+    width: 80%;
+  }
+}
